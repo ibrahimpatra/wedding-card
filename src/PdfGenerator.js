@@ -1,132 +1,115 @@
-// PdfGenerator.js
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { Heart } from 'lucide-react';
 
-// Use the same assets passed from parent
-export const PdfHiddenContent = React.forwardRef(({ t, isArabic, images, ConfettiComponent, BorderComponent, ArchComponent, FloralComponent }, ref) => {
+const PdfGenerator = forwardRef(({ t, isArabic }, ref) => {
+  // A4 size at 96 DPI is approx 794px x 1123px. 
+  // We use a fixed container to ensure html2canvas captures exactly this layout.
+  const A4_WIDTH = '794px';
+  const A4_HEIGHT = '1123px';
   
-  // A4 Styles: Fixed pixel width for 72/96 DPI consistency
-  const pageStyle = {
-    width: '794px', // A4 width at 96dpi
-    height: '1123px', // A4 height at 96dpi
+  const commonStyles = {
+    width: A4_WIDTH,
+    height: A4_HEIGHT,
+    backgroundColor: '#FDFBF7', // Cream
     position: 'relative',
+    overflow: 'hidden',
     display: 'flex',
     flexDirection: 'column',
-    backgroundColor: '#f8f5f0',
-    overflow: 'hidden',
-    pageBreakAfter: 'always'
+    alignItems: 'center',
+    padding: '60px',
+    borderBottom: '1px solid #ddd' // Just for dev visualization
   };
 
+  const fontTitle = isArabic ? 'font-arabic' : 'font-calligraphy';
+  const fontBody = isArabic ? 'font-arabic' : 'font-serif';
+
   return (
-    <div ref={ref}>
-      {/* --- PAGE 1: COVER --- */}
-      <div style={pageStyle}>
-        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: `url('${images.archPattern}')` }} />
-        <ConfettiComponent isStatic={true} />
+    <div style={{ position: 'fixed', left: '-9999px', top: 0 }}>
+      <div ref={ref}>
         
-        <div className="h-full flex flex-col items-center justify-center p-12 relative z-10">
-          <ArchComponent showInner={false} className="opacity-100" />
-          <FloralComponent rotate={0} style={{ top: 0, left: 0 }} />
-          <FloralComponent rotate={90} style={{ top: 0, right: 0 }} />
-          <FloralComponent rotate={180} style={{ bottom: 0, right: 0 }} />
-          <FloralComponent rotate={270} style={{ bottom: 0, left: 0 }} />
+        {/* --- PDF PAGE 1: COVER --- */}
+        <div style={commonStyles}>
+           {/* Background Pattern */}
+           <div className="absolute inset-0 opacity-10" style={{ backgroundImage: `url('https://www.transparenttextures.com/patterns/arabesque.png')` }}></div>
+           
+           {/* Decorative Border Box */}
+           <div className="w-full h-full border-[4px] border-double border-[#D4AF37] flex flex-col items-center justify-center p-12 relative z-10">
+              <img 
+                 src="https://upload.wikimedia.org/wikipedia/commons/2/27/Basmala.svg" 
+                 alt="Bismillah" 
+                 className="h-16 mb-12 opacity-80"
+                 style={{ filter: 'invert(16%) sepia(30%) saturate(1000%) hue-rotate(10deg) brightness(95%) contrast(90%)' }}
+              />
 
-          <div className="text-center mt-32 z-20">
-            <p className="text-[#b38728] font-bold tracking-widest uppercase text-lg mb-12">The Wedding Celebration Of</p>
-            <h1 className={`text-[#1e3a8a] text-8xl my-8 ${isArabic ? 'font-arabic' : 'font-calligraphy'}`}>{t.groom_name}</h1>
-            <div className="flex justify-center items-center gap-6 my-6">
-               <div className="h-[3px] bg-[#b38728] w-24"></div>
-               <Heart size={40} fill="#b38728" className="text-[#b38728]" />
-               <div className="h-[3px] bg-[#b38728] w-24"></div>
-            </div>
-            <h1 className={`text-[#1e3a8a] text-8xl my-8 ${isArabic ? 'font-arabic' : 'font-calligraphy'}`}>{t.bride_name}</h1>
-          </div>
-        </div>
-      </div>
+              <p className="text-[#D4AF37] font-bold uppercase tracking-[0.3em] mb-12 text-sm">The Wedding Of</p>
+              
+              <h1 className={`text-[#0F172A] text-8xl mb-6 ${fontTitle}`}>{t.groom_name}</h1>
+              <Heart size={32} fill="#D4AF37" className="text-[#D4AF37] my-4" />
+              <h1 className={`text-[#0F172A] text-8xl mt-6 ${fontTitle}`}>{t.bride_name}</h1>
 
-      {/* --- PAGE 2: INVITE DETAILS --- */}
-      <div style={pageStyle}>
-        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: `url('${images.archPattern}')` }} />
-        <div className="h-full flex flex-col relative z-10 p-16">
-          <BorderComponent className="absolute top-12 left-12 right-12 z-20" />
-          
-          <div className="mt-12 flex-1 border-4 border-[#b38728] bg-white/80 p-12 rounded-xl flex flex-col items-center justify-between shadow-sm">
-            <div className="w-full text-center">
-              <img src={images.bismillah} alt="Bismillah" className="h-32 mx-auto object-contain mb-8 filter-gold" />
-              <p className={`text-[#0f1f4b] font-serif text-xl px-8 mt-4 leading-loose ${isArabic ? 'text-justify' : 'text-center'}`}>
-                {t.spiritual_body}
-              </p>
-              <p className={`text-[#b38728] font-bold uppercase tracking-widest text-2xl mt-12 ${isArabic ? 'font-arabic' : 'font-serif'}`}>
-                {t.invite_line}
-              </p>
-            </div>
-
-            <div className="text-center py-8">
-              <h1 className={`text-[#1e3a8a] text-7xl ${isArabic ? 'font-arabic' : 'font-calligraphy'}`}>{t.groom_name}</h1>
-              <p className="text-[#b38728] text-4xl my-4">&</p>
-              <h1 className={`text-[#1e3a8a] text-7xl ${isArabic ? 'font-arabic' : 'font-calligraphy'}`}>{t.bride_name}</h1>
-              <p className="text-[#0a192f] text-lg font-bold uppercase tracking-wider mt-8">{t.bride_parents_line}</p>
-            </div>
-
-            <div className="w-full bg-[#1e3a8a] text-white p-6 text-center rounded-lg mt-8">
-              <p className={`text-[#fcf6ba] font-semibold text-xl uppercase tracking-widest leading-relaxed`}>
-                {t.nikah_loc}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* --- PAGE 3: EVENTS --- */}
-      <div style={pageStyle}>
-        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: `url('${images.archPattern}')` }} />
-        <div className="h-full flex flex-col relative z-10 p-20">
-          <FloralComponent rotate={180} style={{ top: 0, right: 0 }} />
-          <FloralComponent rotate={270} style={{ bottom: 0, left: 0 }} />
-          
-          <div className="text-center mb-16">
-            <h2 className={`text-[#1e3a8a] text-7xl ${isArabic ? 'font-arabic' : 'font-calligraphy'}`}>{t.events_title}</h2>
-            <div className="w-32 h-[4px] bg-[#b38728] mx-auto mt-4 rounded-full"></div>
-          </div>
-
-          <div className="flex flex-col gap-8 mt-8">
-            {t.events.map((evt, i) => (
-              <div key={i} className="bg-white border-l-8 border-[#b38728] p-8 shadow-sm flex items-center gap-8 rounded-r-xl">
-                <div className="bg-[#1e3a8a] text-white px-6 py-4 rounded-lg font-bold text-2xl w-48 text-center shrink-0">
-                  {evt.date}
-                </div>
-                <div>
-                  <h3 className={`text-[#1e3a8a] font-bold text-4xl mb-2 ${isArabic ? 'font-arabic' : 'font-serif'}`}>{evt.title}</h3>
-                  <p className="text-xl text-gray-600 flex gap-4 mt-2 font-serif uppercase tracking-wider">
-                    <span>{evt.time}</span> • <span>{evt.loc}</span>
-                  </p>
-                </div>
+              <div className="mt-16 text-[#0F172A] uppercase tracking-widest font-bold border-t border-b border-[#D4AF37] py-2 px-8">
+                 {t.events[0]?.date}
               </div>
-            ))}
-          </div>
+           </div>
         </div>
-      </div>
 
-      {/* --- PAGE 4: COMPLIMENTS --- */}
-      <div style={pageStyle}>
-        <div className="h-full flex flex-col items-center justify-center p-20 bg-[#0a192f] text-white relative">
-          <div className="absolute inset-0 opacity-20" style={{ backgroundImage: `url('${images.borderPattern}')` }}></div>
-          
-          <div className="z-10 w-full border-4 border-[#b38728] p-16 rounded-xl bg-[#0a192f]/95 text-center">
-            <Heart className="mx-auto text-[#b38728] mb-12" size={64} fill="#b38728" />
-            <h3 className={`text-[#fcf6ba] mb-16 font-bold ${isArabic ? 'text-5xl font-arabic' : 'text-4xl font-serif uppercase tracking-widest'}`}>
-              {t.compliments_title}
-            </h3>
-            <div className="flex flex-col gap-6">
-              {t.family_list.map((name, idx) => (
-                <div key={idx} className={`text-white text-3xl opacity-90 ${isArabic ? 'font-arabic' : 'font-serif'}`}>
-                  {name}
-                </div>
-              ))}
-            </div>
-          </div>
+        {/* --- PDF PAGE 2: DETAILS & TIMELINE --- */}
+        <div style={commonStyles}>
+           <div className="absolute inset-0 opacity-10" style={{ backgroundImage: `url('https://www.transparenttextures.com/patterns/arabesque.png')` }}></div>
+
+           {/* Content Wrapper */}
+           <div className="w-full flex-1 flex flex-col items-center z-10 pt-8">
+              
+              {/* Intro Text */}
+              <p className={`text-[#0F172A] text-center w-3/4 leading-loose mb-12 ${fontBody} text-lg`}>
+                 {t.spiritual_body}
+              </p>
+
+              {/* Invitation Line */}
+              <p className="text-[#D4AF37] font-bold uppercase tracking-[0.2em] mb-8 text-sm">{t.invite_line}</p>
+              
+              {/* Couple Names (Smaller) */}
+              <div className="flex items-center gap-4 mb-12">
+                 <span className={`text-[#0F172A] text-5xl ${fontTitle}`}>{t.groom_name}</span>
+                 <span className="text-[#D4AF37] text-2xl">&</span>
+                 <span className={`text-[#0F172A] text-5xl ${fontTitle}`}>{t.bride_name}</span>
+              </div>
+
+              {/* Divider */}
+              <div className="w-full h-[2px] bg-[#D4AF37] opacity-30 mb-12"></div>
+
+              {/* Events List */}
+              <h2 className={`text-[#0F172A] text-4xl mb-8 ${fontTitle}`}>{t.events_title}</h2>
+              <div className="w-full flex flex-col gap-6 px-12">
+                 {t.events.map((evt, i) => (
+                    <div key={i} className="flex justify-between items-center border-b border-[#D4AF37]/20 pb-4">
+                       <div>
+                          <p className={`text-[#0F172A] text-2xl font-bold ${fontBody}`}>{evt.title}</p>
+                          <p className="text-[#0F172A]/60 text-sm uppercase tracking-wide mt-1">{evt.loc}</p>
+                       </div>
+                       <div className="text-right">
+                          <p className="text-[#D4AF37] font-bold text-lg">{evt.date}</p>
+                          <p className="text-[#0F172A]/60 text-sm">{evt.time}</p>
+                       </div>
+                    </div>
+                 ))}
+              </div>
+           </div>
+
+           {/* Footer */}
+           <div className="mt-auto w-full text-center pb-8">
+              <p className="text-[#D4AF37] text-xs uppercase tracking-widest mb-4 font-bold">{t.compliments_title}</p>
+              <div className="flex justify-center gap-8">
+                 {t.family_list.map((name, idx) => (
+                    <span key={idx} className={`text-[#0F172A] text-xl ${fontTitle}`}>{name}</span>
+                 ))}
+              </div>
+           </div>
         </div>
+
       </div>
     </div>
   );
 });
+
+export default PdfGenerator;
