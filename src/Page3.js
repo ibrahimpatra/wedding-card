@@ -1,61 +1,64 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Download, Calendar, MapPin } from 'lucide-react';
-import { FloralCorner, COLORS } from './components';
+import { Download, MapPin, Calendar } from 'lucide-react';
+import { FloralCorner } from './components';
 
 const Page3 = ({ t, isArabic, handleDownloadPDF, isGeneratingPdf }) => {
   return (
-    <div className="relative h-full w-full flex flex-col items-center justify-center p-4 md:p-8">
+    <div className="relative h-full w-full flex flex-col items-center justify-center p-4">
       
-      {/* THE CARD CONTAINER */}
-      <div className="relative w-full max-w-xl bg-[#FDFBF7] shadow-2xl p-8 border border-[#D4AF37]/30 rounded-sm overflow-hidden h-auto min-h-[600px] flex flex-col">
+      <div className="relative w-full max-w-lg bg-[#fdfbf7] shadow-2xl border border-[#b38728]/30 p-6 md:p-8 rounded-sm overflow-hidden flex flex-col h-auto min-h-[500px]">
         
         <FloralCorner rotate={180} style={{ top: 0, right: 0 }} />
         <FloralCorner rotate={270} style={{ bottom: 0, left: 0 }} />
 
-        {/* HEADER */}
-        <div className="text-center mb-8 z-10 mt-4">
-            <h2 className={`text-[#0F172A] text-4xl ${isArabic ? 'font-arabic font-bold' : 'font-calligraphy'}`}>
+        {/* Header */}
+        <div className="text-center z-10 mb-6 mt-2">
+            <h2 className={`text-[#1e3a8a] text-4xl ${isArabic ? 'font-arabic font-bold' : 'font-calligraphy'}`}>
               {t.events_title}
             </h2>
-            <div className="w-16 h-[2px] bg-[#D4AF37] mx-auto mt-2"></div>
+            <div className="w-12 h-[2px] bg-[#b38728] mx-auto mt-2"></div>
         </div>
 
-        {/* EVENTS TIMELINE */}
-        <div className="flex-1 flex flex-col gap-4 z-10 px-2 md:px-6 overflow-y-auto max-h-[40vh] md:max-h-none">
+        {/* Events List - Added Background Styling */}
+        <div className="flex-1 flex flex-col gap-3 z-10 px-1 overflow-y-auto">
           {t.events.map((evt, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, x: -10 }}
               whileInView={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.15 }}
-              className="bg-white border-l-[3px] border-[#D4AF37] shadow-sm p-4 flex justify-between items-center group hover:bg-[#FDFBF7] transition-colors"
+              transition={{ delay: i * 0.1 }}
+              // ADDED BG COLOR HERE
+              className="bg-white border-l-[4px] border-[#b38728] shadow-sm p-4 rounded-r-md flex justify-between items-center relative overflow-hidden"
             >
-               <div>
-                  <h3 className={`text-[#0F172A] text-xl font-bold ${isArabic ? 'font-arabic' : 'font-serif'}`}>
+               {/* Subtle texture inside card */}
+               <div className="absolute inset-0 bg-[#b38728]/5 pointer-events-none"></div>
+               
+               <div className="relative z-10">
+                  <h3 className={`text-[#1e3a8a] text-lg font-bold ${isArabic ? 'font-arabic' : 'font-serif'}`}>
                     {evt.title}
                   </h3>
-                  <div className="flex items-center gap-2 mt-1 text-[#0F172A]/60 text-xs uppercase tracking-wide">
-                     <MapPin size={12} className="text-[#D4AF37]" /> {evt.loc}
+                  <div className="flex items-center gap-1 text-[#0a192f]/60 text-[10px] uppercase tracking-wide mt-1">
+                     <MapPin size={10} className="text-[#b38728]" /> {evt.loc}
                   </div>
                </div>
-               <div className="text-right">
-                  <div className="text-[#D4AF37] font-bold text-sm bg-[#D4AF37]/10 px-2 py-1 rounded inline-block">
+               <div className="text-right relative z-10">
+                  <div className="text-[#b38728] font-bold text-xs bg-[#b38728]/10 border border-[#b38728]/20 px-2 py-1 rounded inline-block">
                      {evt.date}
                   </div>
-                  <div className="text-[#0F172A]/40 text-xs mt-1">{evt.time}</div>
+                  <div className="text-[#0a192f]/40 text-[10px] mt-1">{evt.time}</div>
                </div>
             </motion.div>
           ))}
         </div>
 
-        {/* FOOTER & DOWNLOAD */}
-        <div className="mt-auto pt-8 z-10 text-center space-y-6">
+        {/* Footer */}
+        <div className="mt-6 z-10 text-center space-y-4">
            <div>
-              <p className="text-[#D4AF37] text-xs uppercase tracking-widest mb-2 font-bold">{t.compliments_title}</p>
-              <div className="flex flex-wrap justify-center gap-4">
+              <p className="text-[#b38728] text-[10px] uppercase tracking-widest mb-2 font-bold">{t.compliments_title}</p>
+              <div className="flex flex-wrap justify-center gap-3">
                  {t.family_list.map((name, idx) => (
-                    <span key={idx} className={`text-[#0F172A] text-lg opacity-80 ${isArabic ? 'font-arabic' : 'font-calligraphy'}`}>
+                    <span key={idx} className={`text-[#1e3a8a] text-sm opacity-90 ${isArabic ? 'font-arabic' : 'font-serif italic'}`}>
                        {name}
                     </span>
                  ))}
@@ -65,9 +68,12 @@ const Page3 = ({ t, isArabic, handleDownloadPDF, isGeneratingPdf }) => {
            <button
               onClick={handleDownloadPDF}
               disabled={isGeneratingPdf}
-              className="bg-[#0F172A] text-[#D4AF37] px-8 py-3 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 mx-auto disabled:opacity-50"
+              className="group relative inline-flex items-center justify-center px-6 py-2 overflow-hidden font-medium text-[#b38728] transition duration-300 ease-out border border-[#b38728] rounded-full shadow-md hover:text-white"
            >
-              {isGeneratingPdf ? 'Generating...' : <><Download size={16} /> {t.download_btn}</>}
+              <span className="absolute inset-0 w-full h-full bg-[#b38728] -translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-out"></span>
+              <span className="relative flex items-center gap-2 text-xs font-bold uppercase tracking-wider">
+                 {isGeneratingPdf ? 'Saving...' : <><Download size={14} /> {t.download_btn}</>}
+              </span>
            </button>
         </div>
 

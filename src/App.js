@@ -7,12 +7,11 @@ import jsPDF from 'jspdf';
 // --- IMPORTS ---
 import { CONTENT } from './data';
 import { PatternBackground, FallingConfetti } from './components';
-import Page1 from './Page1'; // Ensure this exists (your landing page)
-import Page2 from './Page2';
-import Page3 from './Page3';
-import PdfGenerator from './PdfGenerator';
+import Page1 from './Page1'; // Landing
+import Page2 from './Page2'; // Invite
+import Page3 from './Page3'; // Events
+import PdfGenerator from './PdfGenerator'; // 2-Page PDF
 
-// --- MAIN COMPONENT ---
 const WeddingInvite = () => {
   const [lang, setLang] = useState('en');
   const [pageIndex, setPageIndex] = useState(0);
@@ -25,13 +24,12 @@ const WeddingInvite = () => {
   const isArabic = lang === 'ld';
   const totalPages = 3;
 
-  // Auto-slide logic
   useEffect(() => {
     let interval;
     if (isPlaying && gatesOpened) {
       interval = setInterval(() => {
         paginate(1);
-      }, 7000); // 7 seconds per slide
+      }, 7000); 
     }
     return () => clearInterval(interval);
   }, [isPlaying, pageIndex, gatesOpened]);
@@ -49,20 +47,18 @@ const WeddingInvite = () => {
     setIsGeneratingPdf(true);
     setIsPlaying(false);
     
-    // Wait a brief moment for any images to settle (optional but safe)
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 500)); // Buffer for layout stability
 
     try {
       if (!printRef.current) return;
-      const doc = new jsPDF('p', 'pt', 'a4'); // Points, A4
+      const doc = new jsPDF('p', 'pt', 'a4');
       const elements = printRef.current.children;
       
       for (let i = 0; i < elements.length; i++) {
-        // High quality scale (2)
         const canvas = await html2canvas(elements[i], {
           scale: 2,
           useCORS: true, 
-          backgroundColor: '#FDFBF7'
+          backgroundColor: '#f8f5f0'
         });
         
         const imgData = canvas.toDataURL('image/jpeg', 1.0);
@@ -75,7 +71,7 @@ const WeddingInvite = () => {
       doc.save(`${t.groom_name}_${t.bride_name}_Invite.pdf`);
     } catch (err) {
       console.error("PDF Gen Error:", err);
-      alert("Error generating PDF. Please try again.");
+      alert("Error generating PDF.");
     } finally {
       setIsGeneratingPdf(false);
     }
@@ -91,32 +87,29 @@ const WeddingInvite = () => {
   };
 
   return (
-    <div className={`h-[100dvh] w-full bg-[#FDFBF7] text-[#0F172A] overflow-hidden relative ${isArabic ? 'font-arabic' : 'font-english'}`}>
+    <div className={`h-[100dvh] w-full bg-[#f8f5f0] text-[#0a192f] overflow-hidden relative ${isArabic ? 'font-arabic' : 'font-english'}`}>
       
-      {/* GLOBAL BACKGROUND */}
       <PatternBackground />
       <FallingConfetti />
 
-      {/* TOP CONTROLS */}
       <div className="fixed top-4 right-4 z-50 flex gap-3">
-        <button onClick={() => setIsPlaying(!isPlaying)} className="bg-white/80 backdrop-blur p-2 rounded-full shadow-lg text-[#0F172A] border border-[#D4AF37] hover:bg-[#D4AF37] hover:text-white transition">
+        <button onClick={() => setIsPlaying(!isPlaying)} className="bg-white/80 p-2 rounded-full shadow-lg border border-[#b38728] text-[#1e3a8a]">
           {isPlaying ? <Pause size={18} /> : <Play size={18} />}
         </button>
-        <button onClick={() => setLang(prev => prev === 'en' ? 'ld' : 'en')} className="flex items-center gap-2 bg-[#0F172A] text-white px-4 py-2 rounded-full shadow-xl border border-[#D4AF37] hover:scale-105 transition">
+        <button onClick={() => setLang(prev => prev === 'en' ? 'ld' : 'en')} className="flex items-center gap-2 bg-[#1e3a8a] text-white px-4 py-2 rounded-full shadow-xl border border-[#b38728]">
           <Globe size={14} />
           <span className="text-xs font-bold">{lang === 'en' ? 'عربي' : 'ENG'}</span>
         </button>
       </div>
 
-      {/* SLIDER CONTENT */}
       <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
         <AnimatePresence mode='wait'>
           <motion.div
             key={pageIndex}
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.05 }}
-            transition={{ duration: 0.6, ease: "easeInOut" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
             className="absolute w-full h-full flex items-center justify-center"
           >
             {renderSlide(pageIndex)}
@@ -124,31 +117,21 @@ const WeddingInvite = () => {
         </AnimatePresence>
       </div>
 
-      {/* NAVIGATION ARROWS */}
       {gatesOpened && (
         <>
-          <button onClick={() => { setIsPlaying(false); paginate(-1); }} className="absolute left-2 top-1/2 -translate-y-1/2 p-3 bg-white/50 hover:bg-white text-[#0F172A] rounded-full shadow-lg backdrop-blur z-40 transition-all">
-            <ChevronLeft size={24} />
-          </button>
-          <button onClick={() => { setIsPlaying(false); paginate(1); }} className="absolute right-2 top-1/2 -translate-y-1/2 p-3 bg-white/50 hover:bg-white text-[#0F172A] rounded-full shadow-lg backdrop-blur z-40 transition-all">
-            <ChevronRight size={24} />
-          </button>
+           <button onClick={() => { setIsPlaying(false); paginate(-1); }} className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-white/50 rounded-full z-40 text-[#1e3a8a]"><ChevronLeft /></button>
+           <button onClick={() => { setIsPlaying(false); paginate(1); }} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-white/50 rounded-full z-40 text-[#1e3a8a]"><ChevronRight /></button>
+           <div className="absolute bottom-6 w-full flex justify-center gap-2 z-50">
+             {[...Array(totalPages)].map((_, i) => (
+               <div key={i} className={`h-1 rounded-full transition-all duration-500 ${i === pageIndex ? 'bg-[#b38728] w-8' : 'bg-[#b38728]/40 w-2'}`} />
+             ))}
+           </div>
         </>
       )}
-      
-      {/* PAGE INDICATORS */}
-      {gatesOpened && (
-        <div className="absolute bottom-6 w-full flex justify-center gap-2 z-50">
-          {[...Array(totalPages)].map((_, i) => (
-            <div key={i} className={`h-1 rounded-full transition-all duration-500 shadow-sm ${i === pageIndex ? 'bg-[#D4AF37] w-8' : 'bg-[#D4AF37]/40 w-2'}`} />
-          ))}
-        </div>
-      )}
 
-      {/* HIDDEN PDF RENDERER */}
+      {/* HIDDEN PDF RENDERER (Strictly 2 Pages) */}
       <PdfGenerator ref={printRef} t={t} isArabic={isArabic} />
 
-      {/* FONTS INJECTION */}
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Great+Vibes&family=Cinzel:wght@400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
         .font-arabic { font-family: 'Amiri', serif; }
