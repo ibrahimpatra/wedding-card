@@ -49,24 +49,26 @@ const Page2 = ({ t, isArabic }) => {
         <div className="relative z-10 w-full flex flex-col flex-1"
           style={{ padding: 'clamp(14px, 3.5vh, 36px) clamp(12px, 3.5vw, 32px)' }}>
 
-          {/* ── SECTION 1: Spiritual ── flex-grow keeps proportional */}
+          {/* ── SECTION 1: Spiritual ── shrinks to content height */}
           <motion.div {...fadeUp(0.1)} className="flex flex-col justify-center bg-[#b38728]/5 border border-[#b38728]/15 rounded-lg"
-            style={{ flex: '3', minHeight: 0, padding: 'clamp(8px, 2vh, 18px) clamp(8px, 2vw, 16px)' }}>
+            style={{ padding: 'clamp(8px, 2vh, 18px) clamp(8px, 2vw, 16px)' }}>
             <BismillahImage />
             <p className={`text-[#1e3a8a] leading-relaxed opacity-90 ${isArabic ? 'font-arabic' : 'font-serif italic'}`}
-              style={{ fontSize: 'clamp(9px, 1.55vh, 13px)', margin: 0 }}>
+              style={{ fontSize: 'clamp(11px, 1.8vh, 15px)', margin: 0 }}>
               {t.spiritual_body}
             </p>
           </motion.div>
 
-          <GoldDivider delay={0.35} />
 
           {/* ── SECTION 2: Names ── */}
           <motion.div {...fadeUp(0.45)} className="flex flex-col items-center justify-center"
             style={{ flex: '4', minHeight: 0 }}>
 
-            <p className={`text-[#b38728] font-bold uppercase tracking-[0.12em] ${isArabic ? 'font-arabic' : ''}`}
-              style={{ fontSize: 'clamp(7px, 1.3vh, 11px)', lineHeight: 1.55, margin: '0 0 clamp(6px,1.5vh,14px)' }}>
+            {/* Divider just above the invite line */}
+            <GoldDivider delay={0.4} />
+
+            <p className={`text-[#b38728] font-bold tracking-[0.07em] ${isArabic ? 'font-arabic' : 'font-serif italic'}`}
+              style={{ fontSize: 'clamp(12px, 2.2vh, 17px)', lineHeight: 1.65, margin: '0 0 clamp(6px,1.5vh,14px)' }}>
               {t.invite_line}
             </p>
 
@@ -100,13 +102,16 @@ const Page2 = ({ t, isArabic }) => {
               {t.bride_name}
             </motion.h1>
 
-            <motion.p {...fadeUp(1)} className="text-[#0a192f]/55 uppercase tracking-widest"
-              style={{ fontSize: 'clamp(7px, 1.2vh, 10px)', margin: 'clamp(6px, 1.4vh, 12px) 0 0' }}>
+            <motion.p {...fadeUp(1)}
+              className={`font-bold tracking-[0.06em] ${isArabic ? 'font-arabic text-[#b38728]' : 'font-serif italic text-[#b38728]'}`}
+              style={{ fontSize: 'clamp(12px, 2.1vh, 16px)', lineHeight: 1.55, margin: 'clamp(6px, 1.4vh, 12px) 0 0' }}>
               {t.bride_parents_line}
             </motion.p>
+
+            {/* Divider just below the bride parents line */}
+            <GoldDivider delay={0.9} />
           </motion.div>
 
-          <GoldDivider delay={0.75} />
 
           {/* ── SECTION 3: Location ── */}
           <motion.div {...fadeUp(0.85)} className="flex flex-col justify-center"

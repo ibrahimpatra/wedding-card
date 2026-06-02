@@ -11,14 +11,15 @@ export const CONTENT = {
     bride_name: "Zenab",
     connector: "&",
     
-    bride_parents_line: "Daughter of Rehana Ben & Hozefa Bhai Khanji",
+    bride_parents_line: "D/O Rehana Ben & Hozefa Bhai Khanji",
     
-    spiritual_body: "With the benevolence of Allah, the Wasila of Panjatan Paak (AS), and the Doa Mubarak of Syedna Mufaddal Saifuddin (TUS), this auspicious union is destined to take place.",
+    spiritual_body: "With the benevolence of Allah, the Wasila of Panjatan Paak (AS), and the Doa Mubarak of Syedna Mufaddal Saifuddin (TUS),",
     
     nikah_loc: "Nikah solemnized by Syedna Mufaddal Saifuddin (TUS) at Saifee Mahal, Mumbai",
     
     events_title: "Program Inshallah",
     events: [
+      { title: "Majlis", loc: "Fakhri Manzil, Pune", date: "18 Aug", time: "" },
       { title: "Nikah Darees", loc: "Fakhri Manzil, Pune", date: "19 Aug", time: "" },
     ],
     
