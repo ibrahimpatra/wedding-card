@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Download, MapPin } from 'lucide-react';
 import { FloralCorner, GoldDivider, SparkleField } from './components';
+import { formatGuestCount } from './inviteCode';
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 12 },
@@ -9,7 +10,21 @@ const fadeUp = (delay = 0) => ({
   transition: { duration: 0.7, delay, ease: 'easeOut' }
 });
 
-const Page3 = ({ t, isArabic, handleDownloadPDF, isGeneratingPdf }) => {
+const Page3 = ({ t, isArabic, handleDownloadPDF, isGeneratingPdf, inviteCode, noButtons }) => {
+  /*
+   * inviteCode === null            → no/invalid route code → show both events, no invitee count
+   * inviteCode = { majlis, nikah } → either field is null if that family isn't invited to that event at all
+   */
+  const visibleEvents = t.events.filter((evt) => {
+    const isMajlis = evt.title.toLowerCase().includes('majlis');
+    const isNikah  = evt.title.toLowerCase().includes('nikah');
+    // Majlis only visible when route explicitly includes FZ (any value)
+    if (isMajlis && (!inviteCode || !inviteCode.majlis)) return false;
+    // Nikah hidden only when route has FZ but no KX at all
+    if (isNikah  && inviteCode && !inviteCode.nikah)  return false;
+    return true;
+  });
+
   return (
     <div className="relative h-full w-full flex items-center justify-center overflow-hidden">
 
@@ -56,7 +71,12 @@ const Page3 = ({ t, isArabic, handleDownloadPDF, isGeneratingPdf }) => {
 
           {/* ── Event cards ── */}
           <motion.div className="w-full flex flex-col justify-center" style={{ flex: '3.5', minHeight: 0, gap: 'clamp(8px, 2vh, 16px)' }}>
-            {t.events.map((evt, i) => (
+            {visibleEvents.map((evt, i) => {
+              const isMajlis = evt.title.toLowerCase().includes('majlis');
+              const guestCode  = inviteCode ? (isMajlis ? inviteCode.majlis : inviteCode.nikah) : null;
+              const showCount  = guestCode && guestCode !== 'S'; // 'S' = show event but no count
+
+              return (
               <motion.div key={i}
                 initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.4 + i * 0.15, duration: 0.6 }}
@@ -94,7 +114,7 @@ const Page3 = ({ t, isArabic, handleDownloadPDF, isGeneratingPdf }) => {
                   </span>
                 </div>
 
-                {/* RIGHT: Event name + venue */}
+                {/* RIGHT: Event name + venue + invitee count */}
                 <div className="flex flex-col justify-center relative z-10 text-left"
                   style={{ padding: 'clamp(10px, 2.5vh, 18px) clamp(10px, 2.5vw, 16px)', flex: 1 }}>
                   <h3 className={`text-[#1e3a8a] font-bold m-0 ${isArabic ? 'font-arabic' : 'font-serif'}`}
@@ -108,9 +128,33 @@ const Page3 = ({ t, isArabic, handleDownloadPDF, isGeneratingPdf }) => {
                       {evt.loc}
                     </span>
                   </div>
+
+                  {/* Invitees count — handwritten, like filled in by hand */}
+                  {showCount && (
+                    <div className="flex items-baseline gap-1" style={{ marginTop: 'clamp(2px, 0.6vh, 5px)' }}>
+                      <span className="text-[#0a192f]/55 font-serif italic"
+                        style={{ fontSize: 'clamp(8px, 1.5vh, 11px)' }}>
+                        Invitees (
+                      </span>
+                      <span className="font-handwritten text-[#1e3a8a]"
+                        style={{
+                          fontSize: 'clamp(15px, 3vh, 21px)',
+                          lineHeight: 1,
+                          transform: 'rotate(-3deg)',
+                          display: 'inline-block',
+                        }}>
+                        {formatGuestCount(guestCode)}
+                      </span>
+                      <span className="text-[#0a192f]/55 font-serif italic"
+                        style={{ fontSize: 'clamp(8px, 1.5vh, 11px)' }}>
+                        )
+                      </span>
+                    </div>
+                  )}
                 </div>
               </motion.div>
-            ))}
+              );
+            })}
           </motion.div>
 
           <GoldDivider delay={0.6} />
@@ -149,7 +193,8 @@ const Page3 = ({ t, isArabic, handleDownloadPDF, isGeneratingPdf }) => {
 
           <GoldDivider delay={0.9} />
 
-          {/* ── Download ── */}
+          {/* ── Download — hidden in /NB mode ── */}
+          {!noButtons && (
           <motion.div {...fadeUp(1.0)} className="flex justify-center items-center"
             style={{ flex: '1.5', minHeight: 0 }}>
             <motion.button
@@ -167,6 +212,7 @@ const Page3 = ({ t, isArabic, handleDownloadPDF, isGeneratingPdf }) => {
               </span>
             </motion.button>
           </motion.div>
+          )}
 
         </div>
       </motion.div>

@@ -1,5 +1,7 @@
 {
   "projects": {
     "default": "wedding-invite-1f3b9"
-  }
+  },
+  "targets": {},
+  "etags": {}
 }

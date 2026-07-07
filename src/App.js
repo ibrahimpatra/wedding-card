@@ -1,13 +1,16 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, Pause, Play, Volume2, VolumeX } from 'lucide-react';
 
 import { CONTENT } from './data';
+import { parseInviteCode } from './inviteCode';
 import { PatternBackground, FallingConfetti } from './components';
 import Page1 from './Page1';
 import Page2 from './Page2';
 import Page3 from './Page3';
 import PdfGenerator from './PdfGenerator';
+import EventInvitePage from './EventInvitePage';
+import AdminPage from './AdminPage';
 
 const SLIDE_DURATION = 7000;
 
@@ -112,7 +115,21 @@ const PlayOverlay = ({ onPlay }) => (
 );
 
 /* ── Main App ── */
-const WeddingInvite = () => {
+// ── Event-page routes: /mehendi /majlis /nikah /mamamusala (+optional /1 /2 /a) ──
+const EVENT_SLUGS = ['mehendi', 'majlis', 'nikah', 'mamamusala'];
+
+const EVENT_STYLES = `
+  @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Great+Vibes&family=Cinzel:wght@400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Caveat:wght@500;700&display=swap');
+  .font-arabic     { font-family: 'Amiri', serif; }
+  .font-calligraphy{ font-family: 'Great Vibes', cursive; }
+  .font-english    { font-family: 'Cinzel', serif; }
+  .font-serif      { font-family: 'Playfair Display', serif; }
+  .font-handwritten{ font-family: 'Caveat', cursive; }
+  ::-webkit-scrollbar { display: none; }
+`;
+
+// ── MainCard: all the existing sliding-card logic (hooks safe here) ──
+const MainCard = () => {
   const [splashDone, setSplashDone] = useState(false);
   const [pageIndex, setPageIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
@@ -128,6 +145,20 @@ const WeddingInvite = () => {
   const t = CONTENT['en'];
   const isArabic = false;
   const totalPages = 3;
+
+  /* ── Invitee route code, e.g. site.com/FZ1KXA ──
+   * null → no/invalid code → show both events, no invitee count (default)
+   */
+  const inviteCode = useMemo(
+    () => parseInviteCode(window.location.pathname),
+    []
+  );
+
+  /* ── /NB = No Buttons mode — hides all UI chrome for clean screenshots ── */
+  const noButtons = useMemo(
+    () => window.location.pathname.replace(/^\/+|\/+$/g,'').toUpperCase() === 'NB',
+    []
+  );
 
   /* ── Audio element — do NOT auto-play ── */
   useEffect(() => {
@@ -224,7 +255,7 @@ const WeddingInvite = () => {
     switch (index) {
       case 0: return <Page1 gatesOpened={gatesOpened} setGatesOpened={setGatesOpened} t={t} isArabic={isArabic} />;
       case 1: return <Page2 t={t} isArabic={isArabic} />;
-      case 2: return <Page3 t={t} isArabic={isArabic} handleDownloadPDF={handleDownloadPDF} isGeneratingPdf={pdfGenerating} />;
+      case 2: return <Page3 t={t} isArabic={isArabic} handleDownloadPDF={handleDownloadPDF} isGeneratingPdf={pdfGenerating} inviteCode={inviteCode} noButtons={noButtons} />;
       default: return null;
     }
   };
@@ -269,17 +300,19 @@ const WeddingInvite = () => {
           </div>
         )}
 
-        {/* Mute + pause */}
-        <div className="fixed top-4 right-4 z-50 flex gap-2">
-          <button onClick={() => setIsMuted(m => !m)}
-            className="bg-white/80 p-2 rounded-full shadow-lg border border-[#b38728] text-[#1e3a8a] hover:scale-110 transition-transform">
-            {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
-          </button>
-          <button onClick={() => { setIsPlaying(p => !p); setProgressKey(k => k + 1); }}
-            className="bg-white/80 p-2 rounded-full shadow-lg border border-[#b38728] text-[#1e3a8a] hover:scale-110 transition-transform">
-            {isPlaying ? <Pause size={18} /> : <Play size={18} />}
-          </button>
-        </div>
+        {/* Mute + pause — hidden in /NB mode */}
+        {!noButtons && (
+          <div className="fixed top-4 right-4 z-50 flex gap-2">
+            <button onClick={() => setIsMuted(m => !m)}
+              className="bg-white/80 p-2 rounded-full shadow-lg border border-[#b38728] text-[#1e3a8a] hover:scale-110 transition-transform">
+              {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+            </button>
+            <button onClick={() => { setIsPlaying(p => !p); setProgressKey(k => k + 1); }}
+              className="bg-white/80 p-2 rounded-full shadow-lg border border-[#b38728] text-[#1e3a8a] hover:scale-110 transition-transform">
+              {isPlaying ? <Pause size={18} /> : <Play size={18} />}
+            </button>
+          </div>
+        )}
 
         {/* Slides */}
         <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
@@ -293,8 +326,8 @@ const WeddingInvite = () => {
           </AnimatePresence>
         </div>
 
-        {/* Nav arrows + dots */}
-        {gatesOpened && (
+        {/* Nav arrows + dots — hidden in /NB mode */}
+        {gatesOpened && !noButtons && (
           <>
             <button onClick={() => { setIsPlaying(false); paginate(-1); }}
               className="absolute left-2 top-1/2 -translate-y-1/2 p-3 bg-white/80 backdrop-blur-sm rounded-full z-40 text-[#1e3a8a] border border-[#b38728] hover:scale-110 transition-transform shadow-lg">
@@ -318,11 +351,12 @@ const WeddingInvite = () => {
         )}
 
         <style jsx global>{`
-          @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Great+Vibes&family=Cinzel:wght@400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Great+Vibes&family=Cinzel:wght@400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Caveat:wght@500;700&display=swap');
           .font-arabic      { font-family: 'Amiri', serif; }
           .font-calligraphy { font-family: 'Great Vibes', cursive; }
           .font-english     { font-family: 'Cinzel', serif; }
           .font-serif       { font-family: 'Playfair Display', serif; }
+          .font-handwritten { font-family: 'Caveat', cursive; }
           ::-webkit-scrollbar { display: none; }
           @keyframes wc-progress {
             from { transform: scaleX(0); }
@@ -332,6 +366,40 @@ const WeddingInvite = () => {
       </div>
     </>
   );
+};
+
+// ── WeddingInvite: top-level router — no hooks, just routing ────────
+const WeddingInvite = () => {
+  const pathParts = window.location.pathname.split('/').filter(Boolean);
+  const slugLower = pathParts[0]?.toLowerCase();
+  const countRaw  = pathParts[1]?.toLowerCase();
+
+  // ── /admin route ────────────────────────────────────────────────
+  if (slugLower === 'admin') {
+    return (
+      <div className="font-english" style={{ minHeight: '100dvh' }}>
+        <AdminPage />
+        <style>{EVENT_STYLES}</style>
+      </div>
+    );
+  }
+
+  if (EVENT_SLUGS.includes(slugLower)) {
+    const count = countRaw === '1' ? '1'
+                : countRaw === '2' ? '2'
+                : countRaw === 'a' ? 'A'
+                : null;
+    return (
+      <div className="h-[100dvh] w-full bg-[#f8f5f0] overflow-hidden relative font-english">
+        <PatternBackground />
+        <FallingConfetti />
+        <EventInvitePage eventKey={slugLower} count={count} />
+        <style>{EVENT_STYLES}</style>
+      </div>
+    );
+  }
+
+  return <MainCard />;
 };
 
 export default WeddingInvite;
