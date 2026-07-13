@@ -2,14 +2,17 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 /* ── Hardcoded password ─────────────────────────────────────────── */
-const ADMIN_PASSWORD = '26786';
+const ADMIN_PASSWORD = 'IZ786';
 
 /* ── All route data ─────────────────────────────────────────────── */
 const SPECIAL = [
-  { route: '/',    tag: 'Default',         desc: 'Nikah only — no count. Safe to share publicly.' },
-  { route: '/NB',  tag: 'No Buttons',      desc: 'All UI hidden. Use for clean screenshots.' },
-  { route: '/i',   tag: 'Majlis, no count',desc: 'Majlis only visible, no invitee count shown.' },
-  { route: '/ip',  tag: 'Both, no count',  desc: 'Majlis + Nikah visible, no invitee count shown.' },
+  { route: '/',       tag: 'Default',              desc: 'Nikah only — no count. Safe to share publicly.' },
+  { route: '/NB',     tag: 'No Buttons',           desc: 'All UI hidden. Clean screenshots — Nikah only.' },
+  { route: '/NB/ip',  tag: 'No Buttons — Both',    desc: 'Majlis + Nikah visible, no count, no UI buttons.' },
+  { route: '/analytics', tag: 'Analytics Dashboard', desc: 'Password-protected play analytics. Tracks device, location, route, browser.' },
+  { route: '/card',   tag: 'Reception Card',        desc: '2-page card: Page 1 (gate animation) + Reception invite. All buttons enabled.' },
+  { route: '/i',      tag: 'Majlis, no count',     desc: 'Majlis only visible, no invitee count shown.' },
+  { route: '/ip',     tag: 'Both, no count',       desc: 'Majlis + Nikah visible, no invitee count shown.' },
 ];
 
 const NIKAH_ONLY = [
@@ -57,6 +60,12 @@ const EVENT_PAGES = [
     host: 'Sarrah Ben & Saifuddin Bhai Patrawala',
     date: '19th August 2026', time: '', venue: 'Fakhri Manzil, Pune',
     extra: 'Nikah solemnized by Syedna Mufaddal Saifuddin (TUS) at Saifee Mahal, Mumbai',
+  },
+  {
+    slug: 'reception', name: 'Reception',
+    host: 'Open invite — no host line',
+    date: '20th August 2026', time: 'Evening', venue: 'Al Fakhar Manzil, Pune',
+    extra: 'Simple colleague/friend invite. No invitee count. Route /reception/1 /2 /a ignored.',
   },
 ];
 
@@ -226,7 +235,7 @@ const Dashboard = () => (
         <span style={{ color: '#b38728', margin: '0 10px' }}>·</span>
         All routes case-insensitive
         <span style={{ color: '#b38728', margin: '0 10px' }}>·</span>
-        35 total routes
+        36 total routes
       </div>
 
       {/* ── Special ── */}

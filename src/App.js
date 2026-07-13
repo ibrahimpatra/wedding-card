@@ -4,6 +4,8 @@ import { ChevronRight, ChevronLeft, Pause, Play, Volume2, VolumeX } from 'lucide
 
 import { CONTENT } from './data';
 import { parseInviteCode } from './inviteCode';
+import { MUSIC_SRC } from './musicConfig';
+import { trackPlay } from './analytics';
 import { PatternBackground, FallingConfetti } from './components';
 import Page1 from './Page1';
 import Page2 from './Page2';
@@ -11,6 +13,8 @@ import Page3 from './Page3';
 import PdfGenerator from './PdfGenerator';
 import EventInvitePage from './EventInvitePage';
 import AdminPage from './AdminPage';
+import CardSlider from './CardSlider';
+import AnalyticsPage from './AnalyticsPage';
 
 const SLIDE_DURATION = 7000;
 
@@ -116,7 +120,7 @@ const PlayOverlay = ({ onPlay }) => (
 
 /* ── Main App ── */
 // ── Event-page routes: /mehendi /majlis /nikah /mamamusala (+optional /1 /2 /a) ──
-const EVENT_SLUGS = ['mehendi', 'majlis', 'nikah', 'mamamusala'];
+const EVENT_SLUGS = ['mehendi', 'majlis', 'nikah', 'mamamusala', 'reception'];
 
 const EVENT_STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Great+Vibes&family=Cinzel:wght@400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Caveat:wght@500;700&display=swap');
@@ -149,20 +153,22 @@ const MainCard = () => {
   /* ── Invitee route code, e.g. site.com/FZ1KXA ──
    * null → no/invalid code → show both events, no invitee count (default)
    */
-  const inviteCode = useMemo(
-    () => parseInviteCode(window.location.pathname),
-    []
-  );
+  const inviteCode = useMemo(() => {
+    const parts = window.location.pathname.split('/').filter(Boolean);
+    const isNBPath = parts[0]?.toUpperCase() === 'NB';
+    const code = isNBPath ? (parts[1] || '') : (parts[0] || '');
+    return parseInviteCode(code ? `/${code}` : '/');
+  }, []);
 
-  /* ── /NB = No Buttons mode — hides all UI chrome for clean screenshots ── */
+  /* ── /NB or /NB/[code] = No Buttons mode ── */
   const noButtons = useMemo(
-    () => window.location.pathname.replace(/^\/+|\/+$/g,'').toUpperCase() === 'NB',
+    () => window.location.pathname.split('/').filter(Boolean)[0]?.toUpperCase() === 'NB',
     []
   );
 
   /* ── Audio element — do NOT auto-play ── */
   useEffect(() => {
-    const audio = new Audio('/wedding-music.mp3');
+    const audio = new Audio(MUSIC_SRC);
     audio.loop = true;
     audio.volume = 0.45;
     audio.preload = 'auto';
@@ -187,7 +193,7 @@ const MainCard = () => {
   /* ── Play button tap — user gesture gives iOS permission to play audio ── */
   const handlePlay = useCallback(() => {
     if (audioRef.current) audioRef.current.play().catch(() => { });
-    setSplashDone(true);
+    setSplashDone(true); trackPlay(window.location.pathname);
   }, []);
 
   const paginate = useCallback((dir) => {
@@ -373,6 +379,26 @@ const WeddingInvite = () => {
   const pathParts = window.location.pathname.split('/').filter(Boolean);
   const slugLower = pathParts[0]?.toLowerCase();
   const countRaw  = pathParts[1]?.toLowerCase();
+
+  // ── /analytics route ─────────────────────────────────────────────
+  if (slugLower === 'analytics') {
+    return (
+      <div className="font-english">
+        <AnalyticsPage />
+        <style>{EVENT_STYLES}</style>
+      </div>
+    );
+  }
+
+  // ── /card route — 2-page slider: Page1 + Reception ────────────────
+  if (slugLower === 'card') {
+    return (
+      <div className="font-english">
+        <CardSlider />
+        <style>{EVENT_STYLES}</style>
+      </div>
+    );
+  }
 
   // ── /admin route ────────────────────────────────────────────────
   if (slugLower === 'admin') {
