@@ -198,26 +198,23 @@ const EventInvitePage = ({ eventKey, count }) => {
             </div>
           </motion.div>
 
-          {/* ── INVITEES COUNT — only for non-reception routes with count ── */}
+          {/* ── INVITEES — navy box, same clean style as Nikah solemnized ── */}
           {count && !ev.isReception && (
-            <motion.div {...fd(1.2)} className="flex flex-col items-center"
-              style={{ gap: 'clamp(2px,0.5vh,5px)' }}>
-              <p style={{ fontFamily: "'Cinzel',serif", fontSize: 'clamp(7px,1.2vh,10px)',
-                           fontWeight: 700, letterSpacing: '0.2em', color: '#b38728',
-                           textTransform: 'uppercase' }}>
-                Invitees
-              </p>
-              <motion.div
-                style={{ width:'clamp(50px,10vh,78px)', height:'clamp(50px,10vh,78px)',
-                         background:'#1e3a8a', borderRadius:'50%', border:'2.5px solid #b38728',
-                         display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}
-                animate={{ boxShadow:['0 0 0px rgba(179,135,40,0)','0 0 18px rgba(179,135,40,0.55)','0 0 0px rgba(179,135,40,0)'] }}
-                transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}>
-                <span className="font-handwritten text-[#f0c040] font-bold"
-                  style={{ fontSize: 'clamp(26px,5.5vh,44px)', lineHeight: 1 }}>
-                  {fmt(count)}
+            <motion.div {...fd(1.2)} className="w-full">
+              <div
+                className="rounded-lg w-full flex items-center justify-center gap-3"
+                style={{ padding: 'clamp(10px,2vh,16px) clamp(16px,4vw,28px)', border: '1.5px solid #b38728' }}
+              >
+                <span style={{ fontFamily:"'Cinzel',serif", fontSize:'clamp(12px,2.2vh,17px)',
+                               fontWeight:700, letterSpacing:'0.18em', color:'#b38728', textTransform:'uppercase' }}>
+                  INVITEES
                 </span>
-              </motion.div>
+                <span style={{ color:'#1e3a8a', fontSize:'clamp(14px,2.4vh,20px)' }}>·</span>
+                <span className="font-handwritten font-bold text-[#1e3a8a]"
+                  style={{ fontSize:'clamp(22px,4.5vh,36px)', lineHeight:1 }}>
+                  ( {fmt(count)} )
+                </span>
+              </div>
             </motion.div>
           )}
 

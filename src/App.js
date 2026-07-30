@@ -12,6 +12,7 @@ import Page2 from './Page2';
 import Page3 from './Page3';
 import PdfGenerator from './PdfGenerator';
 import EventInvitePage from './EventInvitePage';
+import ReceptionA5 from './ReceptionA5';
 import AdminPage from './AdminPage';
 import CardSlider from './CardSlider';
 import AnalyticsPage from './AnalyticsPage';
@@ -374,6 +375,29 @@ const MainCard = () => {
   );
 };
 
+// ── StaleGuard: reloads the page after 5 min in background ─────────
+// Fixes analytics missing on stale-cached tabs. When user returns
+// to the tab after 5+ minutes away, we silently reload so they
+// always run the latest code (including analytics).
+const StaleGuard = ({ children }) => {
+  const hiddenAt = React.useRef(null);
+
+  React.useEffect(() => {
+    const THRESHOLD = 5 * 60 * 1000; // 5 minutes
+    const onVisibility = () => {
+      if (document.hidden) {
+        hiddenAt.current = Date.now();
+      } else if (hiddenAt.current && Date.now() - hiddenAt.current > THRESHOLD) {
+        window.location.reload();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => document.removeEventListener('visibilitychange', onVisibility);
+  }, []);
+
+  return children;
+};
+
 // ── WeddingInvite: top-level router — no hooks, just routing ────────
 const WeddingInvite = () => {
   const pathParts = window.location.pathname.split('/').filter(Boolean);
@@ -411,6 +435,18 @@ const WeddingInvite = () => {
   }
 
   if (EVENT_SLUGS.includes(slugLower)) {
+    // /reception uses its own A5-ratio component for print-ready screenshots
+    if (slugLower === 'reception') {
+      return (
+        <div className="font-english">
+          <PatternBackground />
+          <FallingConfetti />
+          <ReceptionA5 />
+          <style>{EVENT_STYLES}</style>
+        </div>
+      );
+    }
+
     const count = countRaw === '1' ? '1'
                 : countRaw === '2' ? '2'
                 : countRaw === 'a' ? 'A'
@@ -428,4 +464,11 @@ const WeddingInvite = () => {
   return <MainCard />;
 };
 
-export default WeddingInvite;
+// Wrap the whole app in StaleGuard so stale tabs auto-reload
+const App = () => (
+  <StaleGuard>
+    <WeddingInvite />
+  </StaleGuard>
+);
+
+export default App;

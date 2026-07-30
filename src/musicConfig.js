@@ -7,7 +7,7 @@
  *
  * That's it — nothing else to touch.
  * ───────────────────────────────────────────────────────────────── */
-export const MUSIC_TRACK = 1;
+export const MUSIC_TRACK = 2;
 
 export const MUSIC_SRC =
   MUSIC_TRACK === 2 ? '/wedding-music-2.mp3' : '/wedding-music.mp3';
